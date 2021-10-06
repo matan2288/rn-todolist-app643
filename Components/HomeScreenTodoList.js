@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView,CheckBox, Image } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, CheckBox, Image} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { HomeScreenStyle } from "../Style/HomeScreenStyle";
-import reactLogoImgSrc from '../Style/IMG/reactLogo.png'
+import reactLogoImgSrc from "../Style/IMG/reactLogo.png";
 
 export const HomeScreenTodoList = ({ navigation }) => {
-
-
-
   const [isSelected, setSelection] = useState(false);
 
   const [todosToRender, setTodosToRender] = useState([]);
@@ -17,10 +14,13 @@ export const HomeScreenTodoList = ({ navigation }) => {
       const currentTodoListOnLocalStorage = await AsyncStorage.getItem(
         "@storage_Key"
       );
-
-      setTodosToRender(JSON.parse(currentTodoListOnLocalStorage));
+      if (currentTodoListOnLocalStorage == null) {
+        AsyncStorage.setItem("@storage_Key", JSON.stringify(todosToRender));
+      } else {
+        setTodosToRender(JSON.parse(currentTodoListOnLocalStorage));
+      }
     } catch (e) {
-      alert(e)
+      alert(e);
     }
   };
 
@@ -52,14 +52,7 @@ export const HomeScreenTodoList = ({ navigation }) => {
   return (
     <View style={HomeScreenStyle.HomeScreenMainContainer}>
       <View style={HomeScreenStyle.TodosMainContainer}>
-        {todosToRender.length == 0 ? (
-          <View>
-            <Text style={HomeScreenStyle.Logo}> 📆 </Text>
-            <Text style={HomeScreenStyle.EmptyListMessage}>
-              Please add some todos
-            </Text>
-          </View>
-        ) : (
+        {todosToRender.length > 0 ? (
           <ScrollView>
             <Text style={HomeScreenStyle.Logo}> 📆 </Text>
             {todosToRender.map((item) => (
@@ -73,7 +66,6 @@ export const HomeScreenTodoList = ({ navigation }) => {
                 }
                 style={HomeScreenStyle.SingleTodoContainer}
               >
-           
                 <View style={HomeScreenStyle.SingleTodoTextContainer}>
                   <Text style={HomeScreenStyle.SingleTodoTaskDescreption}>
                     <Text>{item.taskDescreption}</Text>
@@ -85,7 +77,6 @@ export const HomeScreenTodoList = ({ navigation }) => {
                   </Text>
                 </View>
 
-
                 <CheckBox
                   style={HomeScreenStyle.CheckboxStyle}
                   value={isSelected}
@@ -96,14 +87,20 @@ export const HomeScreenTodoList = ({ navigation }) => {
               </TouchableOpacity>
             ))}
           </ScrollView>
+        ) : (
+          <View>
+            <Text style={HomeScreenStyle.Logo}> 📆 </Text>
+            <Text style={HomeScreenStyle.EmptyListMessage}>
+              Please add some todos
+            </Text>
+          </View>
         )}
 
-
-<Image style={HomeScreenStyle.TransparentReactBackgroundLogo} source={reactLogoImgSrc}  />
-
-
-      </View> 
-
+        <Image
+          style={HomeScreenStyle.TransparentReactBackgroundLogo}
+          source={reactLogoImgSrc}
+        />
+      </View>
 
       <TouchableOpacity
         onPress={() => navigation.navigate("AddTodo")}
